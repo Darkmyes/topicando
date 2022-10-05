@@ -4,21 +4,32 @@ export class Recolection {
     isActive: boolean;
 
     constructor (name: string,) {
-            this.name = name;
-        }
+        this.id = 0
+        this.name = name;
+        this.isActive = true;
+    }
 }
 
 export interface RecolectionRepository {
-    list(name: string, password: string) : Recolection[];
-    byID(name: string, password: string) : Recolection;
-    listOnlyActives(name: string, password: string) : Recolection[];
-    byIDOnlyActives(name: string, password: string) : Recolection;
-    register(username: string, password: string) : Recolection;
-    update() : boolean;
-    delete(id) : boolean;
+    listOnlyActives() : Promise<Recolection[]>;
+    byIDOnlyActives(id: number) : Promise<Recolection | null>;
+
+    list() : Promise<Recolection[]>;
+    byID(id: number) : Promise<Recolection | null>;
+    register(recolection: Recolection) : Promise<Recolection>;
+    update(recolection: Recolection) : Promise<boolean>;
+    delete(id: number) : Promise<boolean>;
+}
+
+export interface AdminRecolectionUsecase {
+    list() : Promise<Recolection[]>;
+    byID(id: number) : Promise<Recolection | null>;
+    register(recolection: Recolection) : Promise<Recolection | null>;
+    update(recolection: Recolection) : Promise<boolean>;
+    delete(id: number) : Promise<boolean>;
 }
 
 export interface RecolectionUsecase {
-    login(username: string, password: string) : Recolection;
-    register(username: string, password: string) : boolean;
+    list() : Promise<Recolection[]>;
+    byID(id: number) : Promise<Recolection | null>;
 }

@@ -11,11 +11,11 @@ export class User {
 }
 
 export interface UserRepository {
-    login(username: string, password: string) : User;
-    register(username: string, password: string) : boolean;
+    login(username: string, password: string) : Promise<User>;
+    register(username: string, password: string) : Promise<boolean>;
 }
 
 export interface UserUsecase {
-    login(username: string, password: string) : User;
-    register(username: string, password: string) : boolean;
+    login(username: string, password: string) : Promise<User>;
+    register(username: string, password: string) : Promise<boolean>;
 }
