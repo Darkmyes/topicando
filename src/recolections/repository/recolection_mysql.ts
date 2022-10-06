@@ -8,6 +8,17 @@ export class MySQLRecolectionRepository implements RecolectionRepository{
         this.dBcon = dBcon;
     }
 
+    async migrate() {
+        const createTableQuery = 
+            `CREATE TABLE IF NOT EXISTS recolections (
+                id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name TEXT NOT NULL,
+                is_active BOOL NOT NULL DEFAULT 1
+            );`;
+
+        const createTableResult = await this.dBcon.execute<{ affectedRows: number }>(createTableQuery, []);
+    }
+
     async listOnlyActives() : Promise<Recolection[]> {
         const sqlQuery = "SELECT * FROM recolections where is_active"
         const recolections = await this.dBcon.execute<Recolection[]>(sqlQuery, []);
@@ -16,6 +27,9 @@ export class MySQLRecolectionRepository implements RecolectionRepository{
     async byIDOnlyActives(id: number) : Promise<Recolection | null>{
         const sqlQuery = "SELECT * FROM recolections WHERE id = ? AND is_active"
         const recolection = await this.dBcon.execute<Recolection>(sqlQuery, [id]);
+        if (Object.keys(recolection).length == 0) {
+            return null
+        }
         return recolection;
     }
 
@@ -27,6 +41,9 @@ export class MySQLRecolectionRepository implements RecolectionRepository{
     async byID(id: number) : Promise<Recolection | null>{
         const sqlQuery = "SELECT * FROM recolections WHERE id = ?"
         const recolection = await this.dBcon.execute<Recolection>(sqlQuery, [id]);
+        if (Object.keys(recolection).length == 0) {
+            return null
+        }
         return recolection;
     }
     async register(recolection: Recolection) : Promise<Recolection>{
@@ -46,14 +63,14 @@ export class MySQLRecolectionRepository implements RecolectionRepository{
             recolection.name,
             recolection.isActive,
             recolection.id
-          ]);
+        ]);
         return result.affectedRows > 0
     }
     async delete(id: number) : Promise<boolean>{
         const sqlQuery = "DELETE FROM recolections WHERE id = ?"
         const result = await this.dBcon.execute<{ affectedRows: number }>(sqlQuery, [
             id
-          ]);
+        ]);
         return result.affectedRows > 0
     }
 }

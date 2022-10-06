@@ -20,7 +20,12 @@ export class AdminRecolectionUC implements AdminRecolectionUsecase {
         }
         return await this.recolectionRepo.register(recolection)
     }
-    async update(recolection: Recolection) : Promise<boolean> {
+    async update(recolection: Recolection, id: number) : Promise<boolean> {
+        let recolectionDB = this.recolectionRepo.byID(id)
+        if (recolectionDB == null) {
+            throw new Error("No se encontró la Recolección");
+        }
+
         if (recolection.name.trim().length == 0) {
             throw new Error("El nombre no puede estar vacío");
         }

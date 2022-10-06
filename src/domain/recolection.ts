@@ -25,7 +25,7 @@ export interface AdminRecolectionUsecase {
     list() : Promise<Recolection[]>;
     byID(id: number) : Promise<Recolection | null>;
     register(recolection: Recolection) : Promise<Recolection | null>;
-    update(recolection: Recolection) : Promise<boolean>;
+    update(recolection: Recolection, id: number) : Promise<boolean>;
     delete(id: number) : Promise<boolean>;
 }
 

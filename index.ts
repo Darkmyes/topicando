@@ -1,3 +1,5 @@
+import { AdminRecolectionUC } from './src/recolections/usecase/admin_recolection';
+import { RecolectionHandler } from './src/recolections/delivery/recolection_http';
 import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import { MySQLConnection } from './src/infrastructure/mysql';
@@ -7,22 +9,22 @@ import { RecolectionUC } from './src/recolections/usecase/recolection';
 dotenv.config();
 
 // Database Initialization
-let mySQlCon = new MySQLConnection()
+let mySQLCon = new MySQLConnection()
 
 // Repositories Initialization
-let recolectionRepo = new MySQLRecolectionRepository(mySQlCon)
+let recolectionRepo = new MySQLRecolectionRepository(mySQLCon)
+recolectionRepo.migrate();
 
 // Usecases Initialization
 let recolectionUC = new RecolectionUC(recolectionRepo)
+let adminRecolectionUC = new AdminRecolectionUC(recolectionRepo)
 
 // API Initialization
 const app: Express = express();
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello World!')
-})
-
 // HTTP Delivery Initialization
+let recolectionHandler = new RecolectionHandler(recolectionUC, adminRecolectionUC);
+recolectionHandler.init(app)
 
 const port = 3000
 app.listen(port, () => {
