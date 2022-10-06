@@ -1,5 +1,5 @@
-import { Recolection, RecolectionRepository } from "./../../domain/recolection"
-import { MySQLConnection } from "./../../infrastructure/mysql";
+import { Recolection, RecolectionRepository } from "../../domain/recolection"
+import { MySQLConnection } from "../../infrastructure/mysql";
 
 export class MySQLRecolectionRepository implements RecolectionRepository{
     dBcon: MySQLConnection;

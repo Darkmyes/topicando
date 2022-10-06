@@ -1,7 +1,7 @@
-import { User, UserRepository } from "./../../domain/user"
-import { MySQLConnection } from "./../../infrastructure/mysql";
+import { User, UserRepository } from "../../domain/user"
+import { MySQLConnection } from "../../infrastructure/mysql";
 
-export class MySQLuserRepository implements UserRepository{
+export class MySQLUserRepository implements UserRepository{
     dBcon: MySQLConnection;
 
     constructor (dBcon: MySQLConnection) {
@@ -14,27 +14,32 @@ export class MySQLuserRepository implements UserRepository{
                 id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
                 username TEXT NOT NULL,
                 password TEXT NOT NULL,
-                rol TEXT NOT NULL,
-            );`;
+                role_id INT NOT NULL REFERENCES roles(id)
+            ) ENGINE=INNODB;`;
 
         const createTableResult = await this.dBcon.execute<{ affectedRows: number }>(createTableQuery, []);
     }
 
     async login(username: string, password: string) : Promise<User | null>{
         const sqlQuery = "SELECT * FROM users WHERE usernam = ? AND password = ?"
-        const user = await this.dBcon.execute<User>(sqlQuery, [username, password]);
-        if (Object.keys(user).length == 0) {
+        const userDB = await this.dBcon.execute<{id: number, username: string, password: string, role_id: number}>(sqlQuery, [username, password]);
+        if (Object.keys(userDB).length == 0) {
             return null
         }
-        return user;
+
+        return {
+            username: userDB.username,
+            password: userDB.password,
+            role: {id: userDB.role_id, name: ""}
+        } as User;
     }
-    async register(username: string, password: string, rol: string) : Promise<boolean>{
-        let sqlQuery = "INSERT INTO users (username, password) "
-        sqlQuery += "VALUES (?,?)"
+    async register(username: string, password: string, role_id: number) : Promise<boolean>{
+        let sqlQuery = "INSERT INTO users (username, password, role_id)"
+        sqlQuery += "VALUES (?,?,?)"
         const result = await this.dBcon.execute<{ affectedRows: number, insertId: number }>(sqlQuery, [
             username,
             password,
-            rol
+            role_id
         ]);
         if (result.affectedRows == 0) {
             return false
@@ -53,11 +58,11 @@ export class MySQLuserRepository implements UserRepository{
         }
         return true
     }
-    async changeRol(id: number, rol: string): Promise<boolean> {
-        let sqlQuery = "UPDATE users SET rol = ? "
+    async changeRole(id: number, role_id: number): Promise<boolean> {
+        let sqlQuery = "UPDATE users SET role_id = ? "
         sqlQuery += "WHERE id = ?"
         const result = await this.dBcon.execute<{ affectedRows: number, insertId: number }>(sqlQuery, [
-            rol,
+            role_id,
             id
         ]);
         if (result.affectedRows == 0) {

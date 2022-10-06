@@ -1,5 +1,5 @@
 import { Express, Router } from "express"
-import { Recolection, RecolectionUsecase, AdminRecolectionUsecase } from "./../../domain/recolection"
+import { Recolection, RecolectionUsecase, AdminRecolectionUsecase } from "../../domain/recolection"
 
 export class RecolectionHandler {
     recolectionUC: RecolectionUsecase;

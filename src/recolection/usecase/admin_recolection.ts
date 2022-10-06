@@ -1,4 +1,4 @@
-import { Recolection, AdminRecolectionUsecase, RecolectionRepository } from "./../../domain/recolection"
+import { Recolection, AdminRecolectionUsecase, RecolectionRepository } from "../../domain/recolection"
 
 export class AdminRecolectionUC implements AdminRecolectionUsecase {
     recolectionRepo: RecolectionRepository;
