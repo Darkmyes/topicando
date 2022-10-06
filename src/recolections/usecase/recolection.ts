@@ -1,9 +1,8 @@
 import { Recolection, RecolectionUsecase, RecolectionRepository } from "./../../domain/recolection"
 
 export class RecolectionUC implements RecolectionUsecase {
-    
     recolectionRepo: RecolectionRepository;
-    
+
     constructor(recolectionRepo: RecolectionRepository) {
         this.recolectionRepo = recolectionRepo;
     }

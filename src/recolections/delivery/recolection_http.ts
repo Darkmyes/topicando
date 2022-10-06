@@ -110,5 +110,4 @@ export class RecolectionHandler {
         apiInstance.use('/admin/recolections', adminSubRouter)
     }
 
-
 }

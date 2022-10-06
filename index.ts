@@ -1,3 +1,6 @@
+import { UserHandler } from './src/users/delivery/user_http';
+import { UserUC } from './src/users/usecase/user';
+import { MySQLuserRepository } from './src/users/repository/user_mysql';
 import { AdminRecolectionUC } from './src/recolections/usecase/admin_recolection';
 import { RecolectionHandler } from './src/recolections/delivery/recolection_http';
 import express, { Express, Request, Response } from 'express';
@@ -15,9 +18,14 @@ let mySQLCon = new MySQLConnection()
 let recolectionRepo = new MySQLRecolectionRepository(mySQLCon)
 recolectionRepo.migrate();
 
+let userRepo = new MySQLuserRepository(mySQLCon)
+userRepo.migrate();
+
 // Usecases Initialization
 let recolectionUC = new RecolectionUC(recolectionRepo)
 let adminRecolectionUC = new AdminRecolectionUC(recolectionRepo)
+
+let userUC = new UserUC(userRepo)
 
 // API Initialization
 const app: Express = express();
@@ -26,7 +34,10 @@ const app: Express = express();
 let recolectionHandler = new RecolectionHandler(recolectionUC, adminRecolectionUC);
 recolectionHandler.init(app)
 
+let userHandler = new UserHandler(userUC);
+userHandler.init(app)
+
 const port = 3000
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+    console.log(`Example app listening on port ${port}`)
 })
