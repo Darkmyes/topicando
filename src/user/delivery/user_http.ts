@@ -41,7 +41,7 @@ export class UserHandler {
             return
         }
 
-        res.json(newUser);
+        res.json({message: "Se ha registrado el usuario exitosamente"});
     }
     async changePassword (req: Request, res: Response) {
         let user = req.body as User;
@@ -53,7 +53,7 @@ export class UserHandler {
             return
         }
 
-        res.json(newUser);
+        res.json({message: "Se ha actualizado la contraseña exitosamente"});
     }
     async changeRol (req: Request, res: Response) {
         let user = req.body as {id: number, rol_id: number};
@@ -65,6 +65,6 @@ export class UserHandler {
             return
         }
 
-        res.json(newUser);
+        res.json({message: "Se ha actualizado el rol exitosamente"});
     }
 }

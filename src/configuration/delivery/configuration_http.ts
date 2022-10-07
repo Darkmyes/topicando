@@ -28,16 +28,37 @@ export class ConfigurationHandler {
     }
 
     async update (req: Request, res: Response) {
-        let configuration = req.body as Configuration;
+        let configurationJSON = req.body as {
+            max_evidences: number,
+            primary_color: string,
+            secondary_color: string,
+            backgrund_color: string,
+            toolbar_color: string,
+            text_color: string,
+            text_font: string,
+            text_file: string
+        };
+        console.log(req.body)
+
+        let configuration = {
+            maxEvidences: configurationJSON.max_evidences,
+            primaryColor: configurationJSON.primary_color,
+            secondaryColor: configurationJSON.secondary_color,
+            backgrundColor: configurationJSON.backgrund_color,
+            toolbarColor: configurationJSON.toolbar_color,
+            textColor: configurationJSON.text_color,
+            textFont: configurationJSON.text_font,
+            textFile: configurationJSON.text_file
+        };
 
         let configurationUpdated = await this.configurationUC.update(configuration)
-        if (configurationUpdated) {
+        if (!configurationUpdated) {
             res.status(400)
             res.json( {"error" : "Error al actualizar las configuraciones"} )
             return
         }
 
-        res.json(configuration);
+        res.json({message: "Se actualizaron correctamente las correccciones"});
     }
 
 }

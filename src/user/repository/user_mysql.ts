@@ -22,15 +22,15 @@ export class MySQLUserRepository implements UserRepository{
 
     async login(username: string, password: string) : Promise<User | null>{
         const sqlQuery = "SELECT * FROM users WHERE usernam = ? AND password = ?"
-        const userDB = await this.dBcon.execute<{id: number, username: string, password: string, role_id: number}>(sqlQuery, [username, password]);
+        const userDB = await this.dBcon.execute<{id: number, username: string, password: string, role_id: number}[]>(sqlQuery, [username, password]);
         if (Object.keys(userDB).length == 0) {
             return null
         }
 
         return {
-            username: userDB.username,
-            password: userDB.password,
-            role: {id: userDB.role_id, name: ""}
+            username: userDB[0].username,
+            password: userDB[0].password,
+            role: {id: userDB[0].role_id, name: ""}
         } as User;
     }
     async register(username: string, password: string, role_id: number) : Promise<boolean>{

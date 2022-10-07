@@ -9,6 +9,10 @@ export class Role {
 }
 
 export interface RoleRepository {
-    list(id: number) : Promise<Role[]>;
+    list() : Promise<Role[]>;
     byID(id: number) : Promise<Role | null>;
+}
+
+export interface RoleUsecase {
+    list() : Promise<Role[]>;
 }

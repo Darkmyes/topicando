@@ -12,13 +12,13 @@ export class MySQLConfigurationRepository implements ConfigurationRepository{
         const createTableQuery = 
             `CREATE TABLE IF NOT EXISTS configurations (
                 max_evidences INT NOT NULL DEFAULT 1,
-                primary_color TEXT NOT NULL DEFAULT "",
-                secondary_color TEXT NOT NULL DEFAULT "",
-                backgrund_color TEXT NOT NULL DEFAULT "",
-                toolbar_color TEXT NOT NULL DEFAULT "",
-                text_color TEXT NOT NULL DEFAULT "",
-                text_font TEXT NOT NULL DEFAULT "",
-                text_file TEXT NOT NULL DEFAULT ""
+                primary_color TEXT NOT NULL,
+                secondary_color TEXT NOT NULL,
+                backgrund_color TEXT NOT NULL,
+                toolbar_color TEXT NOT NULL,
+                text_color TEXT NOT NULL,
+                text_font TEXT NOT NULL,
+                text_file TEXT NOT NULL
             ) ENGINE=INNODB;`;
         const createTableResult = await this.dBcon.execute<{ affectedRows: number }>(createTableQuery, []);
 
@@ -55,8 +55,8 @@ export class MySQLConfigurationRepository implements ConfigurationRepository{
 
     async get() : Promise<Configuration>{
         const sqlQuery = "SELECT * FROM configurations LIMIT 1"
-        const configuration = await this.dBcon.execute<Configuration>(sqlQuery, []);
-        return configuration;
+        const configuration = await this.dBcon.execute<Configuration[]>(sqlQuery, []);
+        return configuration[0];
     }
     async update(configuration: Configuration) : Promise<boolean>{
         let sqlQuery = 
