@@ -1,5 +1,5 @@
 import { Configuration, ConfigurationRepository } from "../../domain/configuration"
-import { MySQLConnection } from "../../infrastructure/mysql";
+import { MySQLConnection } from "../../infrastructure/repository/mysql";
 
 export class MySQLConfigurationRepository implements ConfigurationRepository{
     dBcon: MySQLConnection;

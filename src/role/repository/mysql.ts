@@ -1,5 +1,5 @@
 import { Role, RoleRepository } from "../../domain/role"
-import { MySQLConnection } from "../../infrastructure/mysql";
+import { MySQLConnection } from "../../infrastructure/repository/mysql";
 
 export class MySQLRoleRepository implements RoleRepository{
     dBcon: MySQLConnection;
