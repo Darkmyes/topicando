@@ -1,5 +1,5 @@
 import { User, UserRepository } from "../../domain/user"
-import { MySQLConnection } from "../../infrastructure/mysql";
+import { MySQLConnection } from "../../infrastructure/repository/mysql";
 
 export class MySQLUserRepository implements UserRepository{
     dBcon: MySQLConnection;

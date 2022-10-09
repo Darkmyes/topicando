@@ -1,4 +1,4 @@
-import { Role, RoleRepository, RoleUsecase } from './../../domain/role';
+import { Role, RoleRepository, RoleUsecase } from '../../domain/role';
 
 
 export class RoleUC implements RoleUsecase {

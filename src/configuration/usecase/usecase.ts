@@ -1,6 +1,5 @@
 import { Configuration, ConfigurationUsecase, ConfigurationRepository } from "../../domain/configuration"
 
-
 export class ConfigurationUC implements ConfigurationUsecase {
     configurationRepo: ConfigurationRepository;
 

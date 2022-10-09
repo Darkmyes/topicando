@@ -1,4 +1,4 @@
-import { Role, RoleRepository } from './../../domain/role';
+import { Role, RoleRepository } from '../../domain/role';
 import { User, UserUsecase, UserRepository } from "../../domain/user"
 
 
