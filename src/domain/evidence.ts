@@ -16,7 +16,7 @@ export interface EvidenceRepository {
     list() : Promise<Evidence[]>;
     byCommentID(id: number) : Promise<Evidence[]>;
     byID(id: number) : Promise<Evidence | null>;
-    register(Evidence: Evidence) : Promise<Evidence>;
+    register(Evidence: Evidence) : Promise<Evidence | null>;
     update(Evidence: Evidence) : Promise<boolean>;
     delete(id: number) : Promise<boolean>;
 }
@@ -25,7 +25,7 @@ export interface EvidenceUsecase {
     list() : Promise<Evidence[]>;
     byCommentID(id: number) : Promise<Evidence[]>;
     byID(id: number) : Promise<Evidence | null>;
-    register(Evidence: Evidence) : Promise<Evidence>;
+    register(Evidence: Evidence) : Promise<Evidence | null>;
     update(Evidence: Evidence) : Promise<boolean>;
     delete(id: number) : Promise<boolean>;
 }

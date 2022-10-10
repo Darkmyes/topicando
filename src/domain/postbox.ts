@@ -30,7 +30,7 @@ export interface PostboxUsecase {
     byCategoryID(id: number) : Promise<Postbox[]>;
     bySubcategoryID(id: number) : Promise<Postbox[]>;
     byID(id: number) : Promise<Postbox | null>;
-    register(Postbox: Postbox) : Promise<Postbox>;
+    register(Postbox: Postbox) : Promise<Postbox | null>;
     update(Postbox: Postbox) : Promise<boolean>;
     delete(id: number) : Promise<boolean>;
 }

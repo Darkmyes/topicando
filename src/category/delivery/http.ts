@@ -12,7 +12,6 @@ export class CategoryHandler {
         let subRouter = Router({mergeParams: true});
 
         subRouter.get('/', async (req, res) => this.list(req,res));
-        subRouter.get('/:id', async (req, res) => this.byID(req,res));
 
         subRouter.post('/', async (req, res) => this.register(req,res));
         subRouter.put('/:id', async (req, res) => this.update(req,res));
@@ -25,25 +24,15 @@ export class CategoryHandler {
         let categories = await this.categoryUC.list();
         res.json(categories);
     }
-    async byID (req: Request, res: Response) {
-        let id = parseInt(req.params.id);
-        if (id == undefined) {
-            res.status(400)
-            res.json( {"error" : "El id debe ser un valor numérico"} )
-            return
-        }
-
-        let category = await this.categoryUC.byID(id);
-        if (category == null) {
-            res.status(400)
-            res.json( {"error" : "No se encuentró la categoría"} )
-            return
-        }
-
-        res.json(category);
-    }
     async register (req: Request, res: Response) {
-        let category = req.body as Category;
+        let categoryJSON = req.body as {
+            name: string
+        };
+
+        let category: Category = {
+            id: 0,
+            name: categoryJSON.name
+        }
 
         let newCategory = await this.categoryUC.register(category)
         if (newCategory == null) {
@@ -62,7 +51,14 @@ export class CategoryHandler {
             return
         }
 
-        let category = req.body as Category;
+        let categoryJSON = req.body as {
+            name: string
+        };
+
+        let category: Category = {
+            id: id,
+            name: categoryJSON.name
+        }
 
         let newCategory = await this.categoryUC.update(category)
         if (newCategory == null) {

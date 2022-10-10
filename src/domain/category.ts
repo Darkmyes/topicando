@@ -11,6 +11,7 @@ export class Category {
 export interface CategoryRepository {
     list() : Promise<Category[]>;
     byID(id: number) : Promise<Category | null>;
+
     register(category: Category) : Promise<Category | null>;
     update(category: Category) : Promise<boolean>;
     delete(id: number) : Promise<boolean>;
@@ -18,7 +19,7 @@ export interface CategoryRepository {
 
 export interface CategoryUsecase {
     list() : Promise<Category[]>;
-    byID(id: number) : Promise<Category | null>;
+
     register(category: Category) : Promise<Category | null>;
     update(category: Category) : Promise<boolean>;
     delete(id: number) : Promise<boolean>;

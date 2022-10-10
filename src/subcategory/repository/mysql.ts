@@ -32,10 +32,6 @@ export class MySQLSubcategoryRepository implements SubcategoryRepository{
             return {
                 id: subcategoryDB.id,
                 name: subcategoryDB.name,
-                category: {
-                    id: subcategoryDB.category_id,
-                    name: ''
-                },
             }
         });
     }
@@ -51,11 +47,7 @@ export class MySQLSubcategoryRepository implements SubcategoryRepository{
         }
         return {
             id: subcategoryDB[0].id,
-            name: subcategoryDB[0].name,
-            category: {
-                id: subcategoryDB[0].category_id,
-                name: ''
-            },
+            name: subcategoryDB[0].name
         };
     }
     async byCategoryID(id: number) : Promise<Subcategory[]>{
@@ -69,20 +61,16 @@ export class MySQLSubcategoryRepository implements SubcategoryRepository{
         return subcategories.map(subcategoryDB => {
             return {
                 id: subcategoryDB.id,
-                name: subcategoryDB.name,
-                category: {
-                    id: subcategoryDB.category_id,
-                    name: ''
-                },
+                name: subcategoryDB.name
             }
         });
     }
-    async register(subcategory: Subcategory) : Promise<Subcategory>{
+    async register(subcategory: Subcategory, categoryID: number) : Promise<Subcategory>{
         let sqlQuery = "INSERT INTO subcategories (name, category_id) "
         sqlQuery += "VALUES (?,?)"
         const result = await this.dBcon.execute<{ affectedRows: number, insertId: number }>(sqlQuery, [
             subcategory.name,
-            subcategory.category.id
+            categoryID
         ]);
         subcategory.id = result.insertId;
         return subcategory

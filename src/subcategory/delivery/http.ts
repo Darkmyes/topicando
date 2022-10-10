@@ -11,9 +11,7 @@ export class SubcategoryHandler {
     init(apiInstance: Express) {
         let subRouter = Router({mergeParams: true});
 
-        subRouter.get('/', async (req, res) => this.list(req,res));
         subRouter.get('/by_category/:id', async (req, res) => this.byCategoryID(req,res));
-        subRouter.get('/:id', async (req, res) => this.byID(req,res));
 
         subRouter.post('/', async (req, res) => this.register(req,res));
         subRouter.put('/:id', async (req, res) => this.update(req,res));
@@ -22,10 +20,6 @@ export class SubcategoryHandler {
         apiInstance.use('/subcategories', subRouter)
     }
 
-    async list (req: Request, res: Response) {
-        let subcategories = await this.subcategoryUC.list();
-        res.json(subcategories);
-    }
     async byCategoryID (req: Request, res: Response) {
         let id = parseInt(req.params.id);
         if (id == undefined) {
@@ -37,27 +31,18 @@ export class SubcategoryHandler {
         let subcategories = await this.subcategoryUC.byCategoryID(id);
         res.json(subcategories);
     }
-    async byID (req: Request, res: Response) {
-        let id = parseInt(req.params.id);
-        if (id == undefined) {
-            res.status(400)
-            res.json( {"error" : "El id debe ser un valor numérico"} )
-            return
-        }
-
-        let subcategory = await this.subcategoryUC.byID(id);
-        if (subcategory == null) {
-            res.status(400)
-            res.json( {"error" : "No se encuentró la subcategoría"} )
-            return
-        }
-
-        res.json(subcategory);
-    }
     async register (req: Request, res: Response) {
-        let subcategory = req.body as Subcategory;
+        let subcategoryJSON = req.body as {
+            name: string,
+            category_id: number
+        };
 
-        let newSubcategory = await this.subcategoryUC.register(subcategory)
+        let subcategory: Subcategory = {
+            id: 0,
+            name: subcategoryJSON.name
+        }
+
+        let newSubcategory = await this.subcategoryUC.register(subcategory, subcategoryJSON.category_id)
         if (newSubcategory == null) {
             res.status(400)
             res.json( {"error" : "No se pudo registrar subcategoría"} )
