@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet"
+        type="text/css">
+    <link href="https://cdn.jsdelivr.net/npm/quasar@2.10.2/dist/quasar.prod.css" rel="stylesheet" type="text/css">
+    <title>Topicando</title>
+    <link rel="icon" href="/static/img/logo.svg">
+</head>
+
+<body>
+    <div id="q-app">
+        <q-layout view="hHh LpR lFr">
+            <q-header elevated class="bg-primary text-white">
+                <q-toolbar>
+                    <q-toolbar-title>
+                        <q-avatar>
+                            <img src="/static/img/logo.svg">
+                        </q-avatar>
+                        <b>Topicando</b>
+                    </q-toolbar-title>
+                </q-toolbar>
+            </q-header>
+
+            <q-page-container>
+                <q-page class="q-pa-sm">
+                    <q-stepper v-model="step" dense>
+
+                        <q-step
+                            :name="1"
+                            title="Data Selection"
+                            icon="table_view"
+                            done-icon="table_view"
+                            :done="step > 1"
+                        >
+                            <div class="col col-xs-12 col-sm-6 q-mb-sm">
+                                <q-file
+                                    v-model="csvData.csvFile"
+                                    accept=".csv"
+                                    label="CSV File"
+                                    filled
+                                    @update:model-value="(value) => { loadCSV() }"
+                                >
+                                    <template v-slot:prepend>
+                                        <q-icon name="description"></q-icon>
+                                    </template>
+                                </q-file>
+                            </div>
+                            <div class="col col-xs-12 col-sm-6 q-mb-sm">
+                                <q-select
+                                    v-model="csvData.csvColumn"
+                                    label="CSV Column"
+                                    filled
+                                    :options="csvData.csvColumns"
+                                    :disable="csvData.csvColumns.length == 0"
+                                >
+                                    <template v-slot:prepend>
+                                        <q-icon name="view_column"></q-icon>
+                                    </template>
+                                </q-select>
+                            </div>
+
+                            <div class="col col-xs-12 flex justify-end">
+                                <q-btn
+                                    @click="proccessInfo"
+                                    no-caps
+                                    label="Send"
+                                    color="primary"
+                                    :disable="csvData.csvColumn == null || csvData.csvColumn == ''"
+                                ></q-btn>
+                            </div>
+                        </q-step>
+
+                        <q-step
+                            :name="2"
+                            title="Data Process"
+                            icon="settings_suggest"
+                            :done="step > 2"
+                        >
+                            <div v-if="loadingProcess" class="col col-xs-12 flex justify-center q-pb-md">
+                                <q-spinner color="primary" size="64px"></q-spinner>
+                            </div>
+                            <div v-else id="grafico" class="col col-xs-12 flex q-mb-md">
+                            </div>
+
+                            <div class="col col-xs-12 flex justify-start">
+                                <q-btn @click="step = 1" no-caps label="Previous" color="primary"></q-btn>
+                            </div>
+                        </q-step>
+
+                    </q-stepper>
+                </q-page>
+            </q-page-container>
+        </q-layout>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quasar@2.10.2/dist/quasar.umd.prod.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/danfojs@1.1.2/lib/bundle.min.js"></script>
+
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/networkgraph.js"></script>
+
+    <script>
+        let chartOptions = {
+            chart: {
+                type: 'networkgraph',
+                height: '100%'
+                },
+            title: {
+                text: ''
+            },
+            subtitle: {
+                text: ''
+            },
+                tooltip: {
+            formatter: function () {
+                console.log(this)
+                return "<b>" + this.key + "</b>: " + this.point.marker.count;
+            }
+        },
+            plotOptions: {
+                networkgraph: {
+                    keys: ['from', 'to'],
+                    layoutAlgorithm: {
+                        enableSimulation: false,//true
+                        friction: -0.9
+                    }
+                }
+            },
+            series: [{
+                colorByPoint: true,
+                accessibility: {
+                    enabled: false
+                },
+                dataLabels: {
+                    enabled: true,
+                    linkFormat: '',
+                },
+                id: 'lang-tree',
+                data: [],
+                nodes: []
+            }]
+        }
+
+        const app = Vue.createApp({
+            setup() {
+                return {
+                    step: Vue.ref(1),
+                    csvData: Vue.ref({
+                        csvFile: null,
+                        csvColumn: "",
+                        csvColumns: [],
+                        dataframe: null,
+                    }),
+                    loadingProcess: Vue.ref(false),
+                    procesedInfo: Vue.ref({})
+                }
+            },
+            methods: {
+                loadCSV () {
+                    if (this.csvData.csvFile == null) {
+                        alert(null)
+                        return
+                    }
+
+                    dfd.readCSV(this.csvData.csvFile)
+                        .then(df => {
+                            this.csvData.dataframe = df
+                            this.csvData.csvColumns = df.columns
+                            if (df.columns.length > 0) {
+                                this.csvData.csvColumn = df.columns[0]
+                            } else {
+                                this.csvData.csvColumn = ""
+                            }
+                        }).catch(err => {
+                            console.log(err);
+                        })
+                },
+                proccessInfo () {
+                    this.loadingProcess = true
+                    this.step = 2
+
+                    axios.post("/api/proccess", this.csvData.dataframe.column(this.csvData.csvColumn).values.filter(val => val != null) )
+                        .then(res => {
+                            this.procesedInfo = res.data
+                            this.loadingProcess = false
+
+                            let chartDataOptions = chartOptions
+                            chartDataOptions.series[0].nodes = res.data.nodes
+                            chartDataOptions.series[0].data = res.data.chart_data
+
+                            setTimeout(() => {
+                                Highcharts.chart('grafico',chartDataOptions )
+                            }, 200);
+                        })
+                        .catch(err => {
+                            this.loadingProcess = false
+                            console.log(err)
+                        })
+                }
+            }
+        })
+
+        app.use(Quasar)
+        app.mount('#q-app')
+    </script>
+</body>
+
+</html>
