@@ -23,8 +23,32 @@ def process():
     topicando.searchEntitiesAndRelations()
     mostUsedInRelations = topicando.getMostUsedWordsOfEntitiesAndRelations()
 
+    sdt = topicando.getSourceEdgeTargetDataFrame()
+    sources = np.array(sdt["source"].values).tolist()
+    edges = np.array(sdt["edge"].values).tolist()
+    targets = np.array(sdt["target"].values).tolist()
+
+    return jsonify({
+        "most_used_corpus" : mostUsedInCorpus,
+        "most_used_relations" : mostUsedInRelations,
+        "word_count" : wordCount,
+
+        "sources" : sources,
+        "edges" : edges,
+        "targets" : targets,
+    })
+
+@app.route('/api/chart_data', methods = ['POST'])
+def chart_data():
+    phrases = request.json
+
+    topicando = TopicandoV1(modelLang, phrases)
+    topicando.searchEntitiesAndRelations()
+    wordCount = topicando.getWordCountOfEntitiesAndRelations()
+
     chart_data = []
     nodes_filtered = []
+
     #for i in topicando.getSourcesTargetsArray():
     for i in topicando.getSourcesEdgesTargetsEdgesArray():
         if i[0] not in nodes_filtered:
@@ -33,8 +57,10 @@ def process():
             nodes_filtered.append(i[1])
         chart_data.append([i[0],i[1]])
 
-    valMin = min([topicando.dictWords[word] for word in topicando.dictWords.keys() if word != '' and word in nodes_filtered])
-    valMax = max([topicando.dictWords[word] for word in topicando.dictWords.keys() if word != '' and word in nodes_filtered])
+    arrayWordsCounts = [topicando.dictWords[word] for word in topicando.dictWords.keys() if word != '' and word in nodes_filtered]
+
+    valMin = min(arrayWordsCounts)
+    valMax = max(arrayWordsCounts)
 
     valMinNormalized = 5
     valMaxNormalized = 50
@@ -50,17 +76,9 @@ def process():
                 }
             })
 
-    return jsonify({ 
-        "message" : "'Hello, World!'",
-        "most_used_corpus" : mostUsedInCorpus,
-        "most_used_relations" : mostUsedInRelations,
-        "word_count" : wordCount,
+    return jsonify({
         "chart_data" : chart_data,
         "nodes" : nodes,
-        "val_min" : valMin,
-        "val_max" : valMax,
-        "val_min_normalized" : valMinNormalized,
-        "val_max_normalized" : valMaxNormalized,
     })
 
 if __name__ == '__main__':
