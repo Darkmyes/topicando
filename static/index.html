@@ -25,7 +25,6 @@
             <q-page-container>
                 <q-page class="q-pa-sm">
                     <q-stepper v-model="step" dense>
-
                         <q-step
                             :name="1"
                             title="Data Selection"
@@ -77,20 +76,75 @@
                             icon="settings_suggest"
                             :done="step > 2"
                         >
+                            <div class="col-12 flex justify-start row">
+                                <div class="q-pa-xs col-12 col-sm-2 row">
+                                    <q-btn class="col-12" :disable="loadingProcess" @click="step = 1" no-caps label="Previous" color="primary"></q-btn>
+                                </div>
+                                <div class="q-pa-xs col-12 col-sm-4">
+                                    <q-select label="Analisis Mode" v-model="analisisMode" :options="analisisModes" outlined dense>
+                                </div>
+                                <div class="q-pa-xs col-12 col-sm-4 row">
+                                    <q-btn class="col-12" :disable="loadingProcess" @click="dialogFilter = true" flat outline no-caps label="Filter: 0 words"></q-btn>
+                                </div>
+                                <div class="q-pa-xs col-12 col-sm-2 row">
+                                    <q-btn class="col-12" :disable="loadingProcess" @click="getChartData" no-caps label="Analize" color="positive"></q-btn>
+                                </div>
+                            </div>
+
                             <div v-if="loadingProcess" class="col col-xs-12 flex justify-center q-pb-md">
                                 <q-spinner color="primary" size="64px"></q-spinner>
                             </div>
-                            <div v-else id="grafico" class="col col-xs-12 flex q-mb-md">
-                            </div>
-
-                            <div class="col col-xs-12 flex justify-start">
-                                <q-btn v-if="!loadingProcess" @click="step = 1" no-caps label="Previous" color="primary"></q-btn>
-                            </div>
+                            <div v-else id="grafico" class="col col-xs-12 flex q-mb-md"></div>
                         </q-step>
 
                     </q-stepper>
                 </q-page>
             </q-page-container>
+
+            <q-dialog v-model="dialogFilter" full-width>
+                <q-layout view="Lhh lpR fff" container class="bg-white">
+                    <q-header class="bg-primary">
+                        <q-toolbar>
+                            <q-toolbar-title>Filter</q-toolbar-title>
+                            <q-btn flat v-close-popup round dense icon="close"></q-btn>
+                        </q-toolbar>
+                    </q-header>
+                    <q-page-container>
+                        <q-page class="q-pa-none row">
+                            <div class="col-12 col-sm-6 col-md-4 q-pa-sm">
+                                <q-table
+                                    title="Sources"
+                                    :columns="sourceEdgeTargetColumns"
+                                    :rows="procesedInfo.sources"
+                                    v-model:selected="selectedSources"
+                                    selection="multiple"
+                                    row-key="text"
+                                ></q-table>
+                            </div>
+                            <div class="col-12 col-sm-6 col-md-4 q-pa-sm">
+                                <q-table
+                                    title="Edges"
+                                    :columns="sourceEdgeTargetColumns"
+                                    :rows="procesedInfo.edges"
+                                    v-model:selected="selectedEdges"
+                                    selection="multiple"
+                                    row-key="text"
+                                ></q-table>
+                            </div>
+                            <div class="col-12 col-sm-6 col-md-4 q-pa-sm">
+                                <q-table
+                                    title="Targets"
+                                    :columns="sourceEdgeTargetColumns"
+                                    :rows="procesedInfo.targets"
+                                    v-model:selected="selectedTargets"
+                                    selection="multiple"
+                                    row-key="text"
+                                ></q-table>
+                            </div>
+                        </q-page>
+                    </q-page-container>
+                </q-layout>
+            </q-dialog>
         </q-layout>
     </div>
 

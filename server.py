@@ -24,23 +24,46 @@ def process():
     mostUsedInRelations = topicando.getMostUsedWordsOfEntitiesAndRelations()
 
     sdt = topicando.getSourceEdgeTargetDataFrame()
-    sources = np.array(sdt["source"].values).tolist()
-    edges = np.array(sdt["edge"].values).tolist()
-    targets = np.array(sdt["target"].values).tolist()
+    sourcesList = np.array(sdt["source"].values).tolist()
+    sourcesWithCount = {}
+    for source in sourcesList:
+        if source == '':
+            continue
+        if source not in sourcesWithCount:
+            sourcesWithCount[source] = 0
+        sourcesWithCount[source] += 1
+
+    edgesList = np.array(sdt["edge"].values).tolist()
+    edgesWithCount = {}
+    for edge in edgesList:
+        if edge == '':
+            continue
+        if edge not in edgesWithCount:
+            edgesWithCount[edge] = 0
+        edgesWithCount[edge] += 1
+
+    targetsList = np.array(sdt["target"].values).tolist()
+    targetsWithCount = {}
+    for target in targetsList:
+        if target == '':
+            continue
+        if target not in targetsWithCount:
+            targetsWithCount[target] = 0
+        targetsWithCount[target] += 1
 
     return jsonify({
         "most_used_corpus" : mostUsedInCorpus,
         "most_used_relations" : mostUsedInRelations,
         "word_count" : wordCount,
 
-        "sources" : sources,
-        "edges" : edges,
-        "targets" : targets,
+        "sources" : sourcesWithCount,
+        "edges" : edgesWithCount,
+        "targets" : targetsWithCount,
     })
 
 @app.route('/api/chart_data', methods = ['POST'])
 def chart_data():
-    phrases = request.json
+    phrases = request.json['data']
 
     topicando = TopicandoV1(modelLang, phrases)
     topicando.searchEntitiesAndRelations()
@@ -49,8 +72,10 @@ def chart_data():
     chart_data = []
     nodes_filtered = []
 
-    #for i in topicando.getSourcesTargetsArray():
-    for i in topicando.getSourcesEdgesTargetsEdgesArray():
+    analisisMode = request.json['analisisMode']
+    corpusToAnalize = topicando.getSourcesTargetsArray() if analisisMode == 'Source, Target' else topicando.getSourcesEdgesTargetsEdgesArray()
+
+    for i in corpusToAnalize:
         if i[0] not in nodes_filtered:
             nodes_filtered.append(i[0])
         if i[1] not in nodes_filtered:

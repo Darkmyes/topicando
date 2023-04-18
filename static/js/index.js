@@ -2,19 +2,22 @@ let chartOptions = {
     chart: {
         type: 'networkgraph',
         height: '100%'
-        },
+    },
     title: {
         text: ''
     },
     subtitle: {
         text: ''
     },
-        tooltip: {
-    formatter: function () {
-        console.log(this)
-        return "<b>" + this.key + "</b>: " + this.point.marker.count;
-    }
-},
+    legend: {
+
+    },
+    tooltip: {
+        formatter: function () {
+            console.log(this)
+            return "<b>" + this.key + "</b>: " + this.point.marker.count;
+        }
+    },
     plotOptions: {
         networkgraph: {
             keys: ['from', 'to'],
@@ -49,8 +52,22 @@ const app = Vue.createApp({
                 csvColumns: [],
                 dataframe: null,
             }),
+            analisisModes: Vue.ref([
+                'Source, Target',
+                'Source, Edge, Target'
+            ]),
+            analisisMode: Vue.ref('Source, Target'),
             loadingProcess: Vue.ref(false),
-            procesedInfo: Vue.ref({})
+            procesedInfo: Vue.ref({}),
+
+            dialogFilter: Vue.ref(false),
+            sourceEdgeTargetColumns: Vue.ref([
+                { name: 'text', align: 'left', label: 'Text', field: row => row[0], sortable: true },
+                { name: 'count', label: 'Count', field: row => row[1], sortable: true }
+            ]),
+            selectedSources: Vue.ref([]),
+            selectedEdges: Vue.ref([]),
+            selectedTargets: Vue.ref([]),
         }
     },
     methods: {
@@ -80,8 +97,26 @@ const app = Vue.createApp({
             axios.post("/api/proccess", this.csvData.dataframe.column(this.csvData.csvColumn).values.filter(val => val != null) )
                 .then(res => {
                     this.procesedInfo = res.data
+
+                    let sources = []
+                    for (var name in res.data.sources) {
+                        sources.push([name, res.data.sources[name]])
+                    }
+                    this.procesedInfo.sources = sources.sort((a, b) => a[1] > b[1] ? -1 : 1)
+
+                    let edges = []
+                    for (var name in res.data.edges) {
+                        edges.push([name, res.data.edges[name]])
+                    }
+                    this.procesedInfo.edges = edges.sort((a, b) => a[1] > b[1] ? -1 : 1)
+
+                    let targets = []
+                    for (var name in res.data.targets) {
+                        targets.push([name, res.data.targets[name]])
+                    }
+                    this.procesedInfo.targets = targets.sort((a, b) => a[1] > b[1] ? -1 : 1)
+
                     this.loadingProcess = false
-                    this.getChartData()
                 })
                 .catch(err => {
                     this.loadingProcess = false
@@ -92,7 +127,10 @@ const app = Vue.createApp({
             this.loadingProcess = true
             this.step = 2
 
-            axios.post("/api/chart_data", this.csvData.dataframe.column(this.csvData.csvColumn).values.filter(val => val != null) )
+            axios.post("/api/chart_data", {
+                analisisMode: this.analisisMode,
+                data: this.csvData.dataframe.column(this.csvData.csvColumn).values.filter(val => val != null)
+            } )
                 .then(res => {
                     this.loadingProcess = false
 
