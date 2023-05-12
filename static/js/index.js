@@ -4,7 +4,9 @@ import {
 } from "//unpkg.com/three/examples/jsm/renderers/CSS2DRenderer.js";
 
 const show3DGraph = (nodes) => {
-    console.log("mostrando")
+    const highlightNodes = new Set();
+    const highlightLinks = new Set();
+    let hoverNode = null;
 
     const Graph = ForceGraph3D({
         //controlType: 'orbit',
@@ -12,6 +14,7 @@ const show3DGraph = (nodes) => {
     })(document.getElementById("grafico"))
         //.jsonUrl("../datasets/miserables.json")
         .graphData(nodes)
+        .backgroundColor('#f3f3f3')
         .nodeAutoColorBy("group")
         .nodeThreeObject((node) => {
             const nodeEl = document.createElement("div");
@@ -22,7 +25,7 @@ const show3DGraph = (nodes) => {
         })
         .onNodeClick(node => {
             // Aim at node from outside it
-            const distance = 40;
+            const distance = 150;
             const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
 
             const newPos = node.x || node.y || node.z
@@ -32,7 +35,7 @@ const show3DGraph = (nodes) => {
             Graph.cameraPosition(
               newPos, // new position
               node, // lookAt ({ x, y, z })
-              3000  // ms transition duration
+              2000  // ms transition duration
             );
         })
         .nodeThreeObjectExtend(true)
@@ -40,8 +43,8 @@ const show3DGraph = (nodes) => {
         .linkThreeObject(link => {
             // extend link with text sprite
             const sprite = new SpriteText(`${link.val}`);
-            sprite.color = 'white';
-            sprite.textHeight = 2;
+            sprite.color = '#757373';
+            sprite.textHeight = 4;
             return sprite;
         }).linkPositionUpdate((sprite, { start, end }) => {
             const middlePos = Object.assign(...['x', 'y', 'z'].map(c => ({
@@ -50,7 +53,14 @@ const show3DGraph = (nodes) => {
 
             // Position sprite
             Object.assign(sprite.position, middlePos);
-        });
+        })
+        .linkWidth(link => 4)
+        .linkOpacity(link =>0.8 );
+
+        elementResizeDetectorMaker().listenTo(
+            document.getElementById('grafico'),
+            el => Graph.width(el.offsetWidth).height(el.offsetHeight)
+        );
 }
 
 let chartOptions = {
@@ -69,7 +79,6 @@ let chartOptions = {
     },
     tooltip: {
         formatter: function () {
-            console.log(this)
             return "<b>" + this.key + "</b>: " + this.point.marker.count;
         }
     },
@@ -127,7 +136,14 @@ const app = Vue.createApp({
             selectedSources: Vue.ref([]),
             selectedEdges: Vue.ref([]),
             selectedTargets: Vue.ref([]),
+
+            fullScreenMode: Vue.ref(false)
         }
+    },
+    mounted () {
+        document.addEventListener("fullscreenchange", () => {
+            this.fullScreenMode = document.fullscreenElement
+        });
     },
     methods: {
         loadCSV () {
@@ -198,10 +214,8 @@ const app = Vue.createApp({
                     chartDataOptions.series[0].data = res.data.chart_data
 
                     setTimeout(() => {
-                        console.log(chartDataOptions)
                         //Highcharts.chart('grafico', chartDataOptions )
                         let newNodes = this.convertNodes(res.data.chart_data, res.data.nodes)
-                        console.log(newNodes)
                         show3DGraph(newNodes);
                     }, 200);
                 })
@@ -307,6 +321,14 @@ const app = Vue.createApp({
             return {
                 nodes: newNodes,
                 links: newLinks,
+            }
+        },
+
+        toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else if (document.exitFullscreen) {
+                document.exitFullscreen();
             }
         }
     }

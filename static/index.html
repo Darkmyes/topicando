@@ -8,7 +8,8 @@
     <link rel="icon" href="/static/img/logo.svg">
 
     <script src="https://unpkg.com/three"></script>
-    <script src="https:////unpkg.com/three-spritetext"></script>
+    <script src="https://unpkg.com/three-spritetext"></script>
+    <script src="https://unpkg.com/element-resize-detector/dist/element-resize-detector.min.js"></script>
     <script src="https://unpkg.com/3d-force-graph"></script>
 
     <style>
@@ -90,7 +91,7 @@
                             icon="settings_suggest"
                             :done="step > 2"
                         >
-                            <div class="col-12 flex justify-start row">
+                            <div class="col-12 flex justify-start row q-mb-sm">
                                 <div class="q-pa-xs col-12 col-sm-2 row">
                                     <q-btn class="col-12" :disable="loadingProcess" @click="step = 1" no-caps label="Previous" color="primary"></q-btn>
                                 </div>
@@ -108,10 +109,20 @@
                             <div v-if="loadingProcess" class="col col-xs-12 flex justify-center q-pb-md">
                                 <q-spinner color="primary" size="64px"></q-spinner>
                             </div>
-                            <div id="grafico" class="col col-xs-12 flex q-mb-md"></div>
+                            <div id="grafico" :style="fullScreenMode ? 'position: fixed; z-index: 2005; left: 0; top: 0; min-width: 100vw; min-height: 100vh;' : ''" class="col col-xs-12 flex q-mb-md"></div>
                         </q-step>
 
                     </q-stepper>
+
+                    <q-page-sticky position="bottom-right" :offset="[18, 18]">
+                        <q-btn
+                            fab
+                            icon="fullscreen"
+                            color="primary"
+                            @click="toggleFullScreen"
+                        >
+                        </q-btn>
+                    </q-page-sticky>
                 </q-page>
             </q-page-container>
 

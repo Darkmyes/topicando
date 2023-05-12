@@ -92,7 +92,7 @@ def chart_data():
     valMax = max(arrayWordsCounts)
 
     valMinNormalized = 5
-    valMaxNormalized = 50
+    valMaxNormalized = 100
 
     nodes = []
     for word in topicando.dictWords.keys():
