@@ -11,6 +11,10 @@ app = Flask(__name__)
 def index():
     return send_from_directory("static", "index.html")
 
+@app.route('/<path:path>')
+def send_report(path):
+    return send_from_directory('static', path)
+
 @app.route('/api/proccess', methods = ['POST'])
 def process():
     phrases = request.json

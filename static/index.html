@@ -6,6 +6,20 @@
     <link href="https://cdn.jsdelivr.net/npm/quasar@2.10.2/dist/quasar.prod.css" rel="stylesheet" type="text/css">
     <title>Topicando</title>
     <link rel="icon" href="/static/img/logo.svg">
+
+    <script src="https://unpkg.com/three"></script>
+    <script src="https:////unpkg.com/three-spritetext"></script>
+    <script src="https://unpkg.com/3d-force-graph"></script>
+
+    <style>
+        .node-label {
+            font-size: 12px;
+            padding: 1px 4px;
+            border-radius: 4px;
+            background-color: rgba(0, 0, 0, 0.5);
+            user-select: none;
+        }
+    </style>
 </head>
 
 <body>
@@ -94,7 +108,7 @@
                             <div v-if="loadingProcess" class="col col-xs-12 flex justify-center q-pb-md">
                                 <q-spinner color="primary" size="64px"></q-spinner>
                             </div>
-                            <div v-else id="grafico" class="col col-xs-12 flex q-mb-md"></div>
+                            <div id="grafico" class="col col-xs-12 flex q-mb-md"></div>
                         </q-step>
 
                     </q-stepper>
@@ -153,10 +167,16 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/danfojs@1.1.2/lib/bundle.min.js"></script>
 
-    <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="https://code.highcharts.com/modules/networkgraph.js"></script>
+    <!-- <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/networkgraph.js"></script> -->
 
-    <script src="/static/js/index.js"></script>
+    <script type="importmap">
+        {
+            "imports": { "three": "https://unpkg.com/three/build/three.module.js" }
+        }
+    </script>
+
+    <script type="module" src="/static/js/index.js"></script>
 </body>
 
 </html>

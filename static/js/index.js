@@ -1,3 +1,58 @@
+import {
+    CSS2DRenderer,
+    CSS2DObject,
+} from "//unpkg.com/three/examples/jsm/renderers/CSS2DRenderer.js";
+
+const show3DGraph = (nodes) => {
+    console.log("mostrando")
+
+    const Graph = ForceGraph3D({
+        //controlType: 'orbit',
+        extraRenderers: [new CSS2DRenderer()],
+    })(document.getElementById("grafico"))
+        //.jsonUrl("../datasets/miserables.json")
+        .graphData(nodes)
+        .nodeAutoColorBy("group")
+        .nodeThreeObject((node) => {
+            const nodeEl = document.createElement("div");
+            nodeEl.textContent = `${node.id} (${node.count})`;
+            nodeEl.style.color = node.color;
+            nodeEl.className = "node-label";
+            return new CSS2DObject(nodeEl);
+        })
+        .onNodeClick(node => {
+            // Aim at node from outside it
+            const distance = 40;
+            const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
+
+            const newPos = node.x || node.y || node.z
+              ? { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }
+              : { x: 0, y: 0, z: distance }; // special case if node is in (0,0,0)
+
+            Graph.cameraPosition(
+              newPos, // new position
+              node, // lookAt ({ x, y, z })
+              3000  // ms transition duration
+            );
+        })
+        .nodeThreeObjectExtend(true)
+        .linkThreeObjectExtend(true)
+        .linkThreeObject(link => {
+            // extend link with text sprite
+            const sprite = new SpriteText(`${link.val}`);
+            sprite.color = 'white';
+            sprite.textHeight = 2;
+            return sprite;
+        }).linkPositionUpdate((sprite, { start, end }) => {
+            const middlePos = Object.assign(...['x', 'y', 'z'].map(c => ({
+              [c]: start[c] + (end[c] - start[c]) / 2 // calc middle point
+            })));
+
+            // Position sprite
+            Object.assign(sprite.position, middlePos);
+        });
+}
+
 let chartOptions = {
     chart: {
         type: 'networkgraph',
@@ -39,7 +94,11 @@ let chartOptions = {
         id: 'lang-tree',
         data: [],
         nodes: []
-    }]
+    }],
+    nodesToShow: {
+        nodes: [],
+        links: []
+    }
 }
 
 const app = Vue.createApp({
@@ -140,13 +199,115 @@ const app = Vue.createApp({
 
                     setTimeout(() => {
                         console.log(chartDataOptions)
-                        Highcharts.chart('grafico', chartDataOptions )
+                        //Highcharts.chart('grafico', chartDataOptions )
+                        let newNodes = this.convertNodes(res.data.chart_data, res.data.nodes)
+                        console.log(newNodes)
+                        show3DGraph(newNodes);
                     }, 200);
                 })
                 .catch(err => {
                     this.loadingProcess = false
                     console.log(err)
                 })
+        },
+        convertNodes (links, nodes) {
+            let newNodes = []
+            let newLinks = []
+
+            let group = 0;
+
+            newNodes = nodes.map(node => {
+                group ++
+
+                return {
+                    id: node.id,
+                    nombre: node.id,
+                    val: node.marker.radius,
+                    count: node.marker.count,
+                    group: group
+                }
+            })
+
+            links.forEach(node => {
+                let itemLink = newLinks.find(nod => nod.source == node[0] && nod.target == node[1])
+                if (!itemLink) {
+                    newLinks.push({
+                        source: node[0],
+                        target: node[1],
+                        val: 1
+                    })
+                } else {
+                    itemLink.value++
+                }
+            })
+
+            return {
+                nodes: newNodes,
+                links: newLinks,
+            }
+        },
+        convertNodesOld (links, nodes) {
+            let newNodes = []
+            let newLinks = []
+
+            let group = 1;
+
+            links.forEach(node => {
+                let itemSource = newNodes.find(nod => nod.id == node[0])
+                if (!itemSource) {
+                    newNodes.push({
+                        id: node[0],
+                        nombre: node[0],
+                        value: 1,
+                        group: group
+                    })
+                    group++
+                } else {
+                    itemSource.value ++
+                }
+
+                let itemTarget = newNodes.find(nod => nod.id == node[1])
+                if (!itemTarget) {
+                    newNodes.push({
+                        id: node[1],
+                        nombre: node[1],
+                        value: 1,
+                        group: group
+                    })
+                    group++
+                } else {
+                    itemTarget.value ++
+                }
+
+                let itemLink = newLinks.find(nod => nod.source == node[0] && nod.target == node[1])
+                if (!itemLink) {
+                    newLinks.push({
+                        source: node[0],
+                        target: node[1],
+                        value: 1
+                    })
+                } else {
+                    itemLink.value++
+                }
+            })
+
+            /* links.forEach(node => {
+                let itemLink = newLinks.find(nod => nod.source == node[0] && nod.target == node[1])
+                if (!itemLink) {
+                    newLinks.push({
+                        source: node[0],
+                        target: node[1],
+                        value: 1
+                    })
+                } else {
+                    itemLink.value++
+                }
+            }) */
+
+            return {
+                nodes: newNodes,
+                links: newLinks,
+            }
         }
     }
 })
