@@ -1,0 +1,5 @@
+pandas==2.0.2
+numpy==1.24.3
+spacy==3.5.3
+Flask==2.3.2
+https://github.com/explosion/spacy-models/releases/download/es_core_news_lg-3.5.0/es_core_news_lg-3.5.0-py3-none-any.whl
